@@ -216,6 +216,31 @@ for image, image_files in cropped_images.items():
             output_annotation_path = os.path.join(output_folders[image], f'composite_{os.path.splitext(os.path.basename(bg_file))[0]}_{i}.txt')
             generate_composite_image_and_annotation(background_img.copy(), selected_images, selected_classes, output_image_path, output_annotation_path)
 
+
+# 创建muti文件夹路径
+muti_output_folder = 'output/muti_output'
+if not os.path.exists(muti_output_folder):
+    os.makedirs(muti_output_folder)
+
+# 生成muti文件夹中的图像和标注
+for bg_file in backgrounds:
+    background_img = Image.open(bg_file).convert('RGBA')
+    # 随机选择三种不同的水果
+    selected_image_types = random.sample(list(cropped_images.keys()), 3)
+    selected_images = []
+    selected_classes = []
+    for image_type in selected_image_types:
+        image_file = random.choice(cropped_images[image_type])
+        selected_images.append(Image.open(image_file).convert('RGBA'))
+        selected_classes.append(list(cropped_images.keys()).index(image_type))
+    
+    # 生成输出路径
+    output_image_path = os.path.join(muti_output_folder, f'muti_{os.path.splitext(os.path.basename(bg_file))[0]}.jpg')
+    output_annotation_path = os.path.join(muti_output_folder, f'muti_{os.path.splitext(os.path.basename(bg_file))[0]}.txt')
+    generate_composite_image_and_annotation(background_img, selected_images, selected_classes, output_image_path, output_annotation_path)
+
+print("muti文件夹中的图像和标注生成完毕！")
+
 print("生成数据图像完毕！")
 print('--------------------------------')
 
@@ -295,8 +320,14 @@ ln_6='# Classes'+newline
 # names of the classes declaration
 ln_7='names:'+newline
 
+
 # 自动生成分类
-class_lines = [f'  {i}: {folder}' + newline for i, folder in enumerate(folders)]
+# class_lines = [f'  {i}: {folder}' + newline for i, folder in enumerate(folders)]
+output_folder = 'output'  # 确保定义了output_folder
+
+# 自动生成分类
+class_lines = [f'  {i}: {os.path.join(output_folder, folder)}' + newline for i, folder in enumerate(folders)]
+
 
 config_lines = [ln_1, ln_2, ln_3, ln_4, ln_5, ln_6, ln_7] + class_lines
 
